@@ -12,8 +12,6 @@ const PizzaBlock = ({ title, price, imageUrl, types, sizes }) => {
       <h4 className="pizza-block__title">{title}</h4>
       <div className="pizza-block__selector">
         <ul>
-          {/* <li className="active">thin</li>
-          <li>traditional</li> */}
           {types.map((type, index) => (
             <li
               className={activeType === index ? 'active' : ''}
