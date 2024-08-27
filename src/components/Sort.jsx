@@ -1,10 +1,15 @@
 import React from 'react';
 
-const Sort = ({ value = { name: 'rating', sort: 'rating' }, onClickSort }) => {
+const Sort = ({
+  value = { name: 'rating', sort: 'rating' },
+  order = 'asc',
+  onClickSort,
+  onClickOrder,
+}) => {
   const sortOptions = [
-    { name: 'rating', sort: 'rating' },
-    { name: 'price', sort: 'price' },
-    { name: 'alphabetic', sort: 'alphabetic' },
+    { name: 'Rating', sort: 'rating' },
+    { name: 'Price', sort: 'price' },
+    { name: 'Alphabetic', sort: 'alphabetic' },
   ];
 
   const [visiblePopup, setVisiblePopup] = React.useState(false);
@@ -14,10 +19,16 @@ const Sort = ({ value = { name: 'rating', sort: 'rating' }, onClickSort }) => {
     setVisiblePopup(false);
   };
 
+  const toggleOrder = () => {
+    onClickOrder(order === 'asc' ? 'desc' : 'asc');
+  };
+
   return (
     <div className="sort">
       <div className="sort__label">
         <svg
+          onClick={toggleOrder}
+          className={order === 'asc' ? '' : 'rotated'}
           width="10"
           height="6"
           viewBox="0 0 10 6"

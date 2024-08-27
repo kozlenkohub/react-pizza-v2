@@ -1,61 +1,79 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Categories from '../components/Categories';
 import Sort from '../components/Sort';
 import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
+import NotFound from './NotFound';
 
-const Home = () => {
-  const [items, setItems] = React.useState([]);
-  const [isLoaded, setIsLoaded] = React.useState(false);
+const Home = ({ searchValue }) => {
+  const [items, setItems] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [activeSort, setActiveSort] = useState({ name: 'Rating', sort: 'rating' });
+  const [sortOrder, setSortOrder] = useState('asc');
 
-  const [activeCategory, setActiveCategory] = React.useState(0);
-  const [activeSort, setActiveSort] = React.useState({ name: 'rating', sort: 'rating' });
-
-  React.useEffect(() => {
+  const fetchPizzas = useCallback(() => {
     setIsLoaded(false);
 
-    window.scrollTo(0, 0);
     const categoryQuery = activeCategory === 0 ? '' : `category=${activeCategory}&`;
-    fetch(
-      `https://665d6310e88051d604065b54.mockapi.io/items?${categoryQuery}sortBy=${activeSort.sort}`,
-    )
+    const apiUrl = `https://665d6310e88051d604065b54.mockapi.io/items?${categoryQuery}sortBy=${activeSort.sort}&order=${sortOrder}&search=${searchValue}`;
+
+    fetch(apiUrl)
       .then((res) => res.json())
       .then((json) => {
-        setItems(json);
+        setItems(Array.isArray(json) ? json : []);
+        setIsLoaded(true);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch items:', error);
+        setItems([]);
         setIsLoaded(true);
       });
-  }, [activeCategory, activeSort]);
+  }, [activeCategory, activeSort, sortOrder, searchValue]);
+
+  useEffect(() => {
+    fetchPizzas();
+  }, [fetchPizzas]);
+
+  const handleCategoryChange = (index) => {
+    setActiveCategory(index);
+  };
+
+  const handleSortChange = (sortOption) => {
+    setActiveSort(sortOption);
+  };
+
+  const handleOrderChange = (order) => {
+    setSortOrder(order);
+  };
+
+  const renderPizzas = () => {
+    if (!isLoaded) {
+      return Array(6)
+        .fill(0)
+        .map((_, index) => <Skeleton key={index} />);
+    }
+
+    if (items.length === 0) {
+      return <NotFound />;
+    }
+
+    return items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+  };
 
   return (
     <div className="container">
       <div className="content__top">
-        <Categories
-          value={activeCategory}
-          onClickCategory={(index) => {
-            setActiveCategory(index);
-          }}
-        />
+        <Categories value={activeCategory} onClickCategory={handleCategoryChange} />
         <Sort
           value={activeSort}
-          onClickSort={(obj) => {
-            setActiveSort(obj);
-          }}
+          order={sortOrder}
+          onClickSort={handleSortChange}
+          onClickOrder={handleOrderChange}
         />
       </div>
       <h2 className="content__title">All pizzas</h2>
-      <div className="content__items">
-        {isLoaded ? (
-          items.length > 0 ? (
-            items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
-          ) : (
-            <p>No items found</p>
-          )
-        ) : (
-          Array(6)
-            .fill(0)
-            .map((_, index) => <Skeleton key={index} />)
-        )}
-      </div>
+      <div className="content__items">{renderPizzas()}</div>
     </div>
   );
 };

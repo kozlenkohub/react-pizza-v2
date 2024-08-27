@@ -1,0 +1,63 @@
+// Search.module.scss
+
+.root {
+  display: flex;
+  align-items: center;
+  background-color: #f3f3f3;
+  padding: 8px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+
+  &:hover {
+    background-color: #e0e0e0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:focus-within {
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  padding: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+
+  &::placeholder {
+    color: #a9a9a9;
+    transition: color 0.3s ease;
+  }
+
+  &:focus {
+    color: #333;
+    transform: scale(1.02);
+
+    &::placeholder {
+      color: #666;
+    }
+  }
+}
+
+input[type='text']::-webkit-input-placeholder {
+  color: #a9a9a9;
+}
+
+input[type='text']:-moz-placeholder {
+  color: #a9a9a9;
+}
+
+input[type='text']::-moz-placeholder {
+  color: #a9a9a9;
+}
+
+input[type='text']:-ms-input-placeholder {
+  color: #a9a9a9;
+}
