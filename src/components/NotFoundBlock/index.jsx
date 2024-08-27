@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './NotFoundBlock.module.scss';
+import { Link } from 'react-router-dom';
 
 const index = () => {
   // create notfound page with emoji
