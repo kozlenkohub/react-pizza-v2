@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import styles from './Search.module.scss';
 import { DeleteIcon, Search as SearchIcon } from 'lucide-react';
+import { SearchContext } from '../../App';
 
-const Search = ({ setSearchValue, searchValue }) => {
+const Search = () => {
+  const { searchValue, setSearchValue } = React.useContext(SearchContext);
+
   return (
     <div className={styles.root}>
       <SearchIcon size="24" color="gray" />
