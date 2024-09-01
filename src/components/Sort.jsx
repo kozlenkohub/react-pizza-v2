@@ -8,10 +8,9 @@ const sortOptions = [
   { name: 'Alphabetic', sort: 'alphabetic' },
 ];
 
-const Sort = () => {
+const Sort = ({ order, onClickOrder }) => {
   const dispatch = useDispatch();
   const activeSort = useSelector((state) => state.filters.activeSort);
-  const [order, setOrder] = React.useState('asc');
   const [visiblePopup, setVisiblePopup] = React.useState(false);
 
   const onClickSorted = (obj) => {
@@ -21,7 +20,7 @@ const Sort = () => {
 
   const toggleOrder = () => {
     const newOrder = order === 'asc' ? 'desc' : 'asc';
-    setOrder(newOrder);
+    onClickOrder(newOrder); // Вызов функции из пропсов для изменения порядка
   };
 
   return (
