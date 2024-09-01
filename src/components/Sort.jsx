@@ -1,26 +1,27 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setActiveSort } from '../redux/slices/filterSlice';
 
-const Sort = ({
-  value = { name: 'rating', sort: 'rating' },
-  order = 'asc',
-  onClickSort,
-  onClickOrder,
-}) => {
-  const sortOptions = [
-    { name: 'Rating', sort: 'rating' },
-    { name: 'Price', sort: 'price' },
-    { name: 'Alphabetic', sort: 'alphabetic' },
-  ];
+const sortOptions = [
+  { name: 'Rating', sort: 'rating' },
+  { name: 'Price', sort: 'price' },
+  { name: 'Alphabetic', sort: 'alphabetic' },
+];
 
+const Sort = () => {
+  const dispatch = useDispatch();
+  const activeSort = useSelector((state) => state.filters.activeSort);
+  const [order, setOrder] = React.useState('asc');
   const [visiblePopup, setVisiblePopup] = React.useState(false);
 
   const onClickSorted = (obj) => {
-    onClickSort(obj);
+    dispatch(setActiveSort(obj));
     setVisiblePopup(false);
   };
 
   const toggleOrder = () => {
-    onClickOrder(order === 'asc' ? 'desc' : 'asc');
+    const newOrder = order === 'asc' ? 'desc' : 'asc';
+    setOrder(newOrder);
   };
 
   return (
@@ -40,7 +41,7 @@ const Sort = ({
           />
         </svg>
         <b>Sorting by:</b>
-        <span onClick={() => setVisiblePopup(!visiblePopup)}>{value.name}</span>
+        <span onClick={() => setVisiblePopup(!visiblePopup)}>{activeSort.name}</span>
       </div>
 
       {visiblePopup && (
@@ -50,7 +51,7 @@ const Sort = ({
               <li
                 key={`${obj.name}_${index}`}
                 onClick={() => onClickSorted(obj)}
-                className={value.sort === obj.sort ? 'active' : ''}>
+                className={activeSort.sort === obj.sort ? 'active' : ''}>
                 {obj.name}
               </li>
             ))}
