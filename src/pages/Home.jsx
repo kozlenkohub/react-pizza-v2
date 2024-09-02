@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Categories from '../components/Categories';
 import Sort from '../components/Sort';
@@ -8,16 +8,17 @@ import Skeleton from '../components/PizzaBlock/Skeleton';
 import NotFound from './NotFound';
 import Pagination from '../components/Pagination';
 import useFetchPizzas from '../hooks/useFetchPizzas';
+import { setCurrentPage } from '../redux/slices/filterSlice'; // Импорт экшена
 
 const Home = ({ searchValue }) => {
-  const { activeSort, activeCategory } = useSelector((state) => state.filters);
+  const { activeSort, activeCategory, currentPage } = useSelector((state) => state.filters);
+  const dispatch = useDispatch();
 
   const [sortOrder, setSortOrder] = useState('asc');
-  const [currentPage, setCurrentPage] = useState(0);
 
   // Используем хук для получения данных пицц
   const { items, isLoaded, pageCount } = useFetchPizzas(
-    activeCategory, // Динамическое обновление активной категории
+    activeCategory,
     activeSort,
     sortOrder,
     searchValue,
@@ -29,7 +30,7 @@ const Home = ({ searchValue }) => {
   };
 
   const handlePageChange = (selectedPage) => {
-    setCurrentPage(selectedPage);
+    dispatch(setCurrentPage(selectedPage)); // Диспатчем новое значение страницы в Redux
   };
 
   const renderPizzas = () => {
@@ -54,7 +55,7 @@ const Home = ({ searchValue }) => {
       </div>
       <h2 className="content__title">All pizzas</h2>
       <div className="content__items">{renderPizzas()}</div>
-      <Pagination pageCount={pageCount} onPageChange={handlePageChange} />
+      <Pagination pageCount={pageCount} /> {/* handlePageChange больше не нужен */}
     </div>
   );
 };

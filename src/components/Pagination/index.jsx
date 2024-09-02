@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactPaginate from 'react-paginate';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentPage } from '../../redux/slices/filterSlice';
 import styles from './Pagination.module.scss';
 
-const Pagination = ({ pageCount, onPageChange }) => {
-  const [currentPage, setCurrentPage] = useState(0);
+const Pagination = ({ pageCount }) => {
+  const dispatch = useDispatch();
+  const currentPage = useSelector((state) => state.filters.currentPage);
 
   const handlePageClick = (event) => {
-    setCurrentPage(event.selected);
-    onPageChange(event.selected);
+    dispatch(setCurrentPage(event.selected));
   };
 
   return (
@@ -17,11 +19,12 @@ const Pagination = ({ pageCount, onPageChange }) => {
       nextLabel=">"
       onPageChange={handlePageClick}
       pageRangeDisplayed={3}
-      pageCount={pageCount} // Adjust this dynamically based on total number of pages
+      pageCount={pageCount}
       previousLabel="<"
       renderOnZeroPageCount={null}
-      containerClassName={styles.pagination} // Custom styling
-      activeClassName={styles.active} // Custom styling for the active page
+      containerClassName={styles.pagination}
+      activeClassName={styles.active}
+      forcePage={currentPage}
     />
   );
 };

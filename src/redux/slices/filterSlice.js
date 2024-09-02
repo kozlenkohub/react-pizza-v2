@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   activeCategory: 0,
   activeSort: { name: 'Rating', sort: 'rating' },
+  currentPage: 0, // Новое свойство для хранения текущей страницы
 };
 
 const filterSlice = createSlice({
@@ -15,8 +16,11 @@ const filterSlice = createSlice({
     setActiveSort(state, action) {
       state.activeSort = action.payload;
     },
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload;
+    },
   },
 });
 
-export const { setActiveCategory, setActiveSort } = filterSlice.actions;
+export const { setActiveCategory, setActiveSort, setCurrentPage } = filterSlice.actions;
 export default filterSlice.reducer;
