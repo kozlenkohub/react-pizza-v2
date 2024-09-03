@@ -1,10 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import qs from 'qs';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setFilters } from '../redux/slices/filterSlice';
 
 const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, currentPage) => {
   const [items, setItems] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [pageCount, setPageCount] = useState(3);
+  const dispatch = useDispatch();
+
+  const isFirstRender = useRef(true);
 
   const API_URL = 'https://665d6310e88051d604065b54.mockapi.io/items';
 
@@ -12,29 +18,32 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
     category: activeCategory !== 0 ? activeCategory : undefined,
     sortBy: activeSort.sort,
     order: sortOrder,
-    search: searchValue,
+    search: searchValue || undefined,
     page: currentPage + 1,
     limit: 4,
   });
+
+  const updateURLParams = useCallback(() => {
+    if (isFirstRender.current) {
+      return;
+    }
+    const params = getFilterParams();
+    const queryString = qs.stringify(params, { skipNulls: true });
+    window.history.pushState(null, '', `?${queryString}`);
+  }, [activeCategory, activeSort, sortOrder, searchValue, currentPage]);
 
   const fetchPizzas = useCallback(async () => {
     setIsLoaded(false);
 
     try {
-      const params = buildFilterParams();
-
-      const [{ data: itemsData }, { data: allItemsData }] = await Promise.all([
+      const params = getFilterParams();
+      const [{ data }, { data: totalItems }] = await Promise.all([
         axios.get(API_URL, { params }),
-        axios.get(API_URL, {
-          params: {
-            category: activeCategory !== 0 ? activeCategory : undefined,
-            search: searchValue || undefined,
-          },
-        }),
+        axios.get(API_URL),
       ]);
 
-      setItems(itemsData);
-      setPageCount(Math.ceil(allItemsData.length / ITEMS_PER_PAGE));
+      setItems(data);
+      setPageCount(Math.ceil(totalItems.length / 4));
     } catch (error) {
       console.error('Failed to fetch items:', error);
       setItems([]);
@@ -43,12 +52,39 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
     }
   }, [activeCategory, activeSort, sortOrder, searchValue, currentPage]);
 
+  const syncFiltersWithURL = useCallback(() => {
+    const params = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+
+    const filters = {
+      activeCategory: params.category ? Number(params.category) : 0,
+      activeSort: {
+        name: params.sortBy || 'Rating',
+        sort: params.sortBy || 'rating',
+      },
+      sortOrder: params.order || 'asc',
+      searchValue: params.search || '',
+      currentPage: params.page ? Number(params.page) - 1 : 0,
+    };
+
+    dispatch(setFilters(filters));
+  }, [dispatch]);
+
+  useEffect(() => {
+    syncFiltersWithURL();
+  }, []);
+
   useEffect(() => {
     if (!isFirstRender.current) {
       updateURLParams();
     }
     fetchPizzas();
-  }, [fetchPizzas]);
+  }, [fetchPizzas, updateURLParams]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    }
+  }, []);
 
   return { items, isLoaded, pageCount };
 };
