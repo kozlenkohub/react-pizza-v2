@@ -8,7 +8,7 @@ import Skeleton from '../components/PizzaBlock/Skeleton';
 import NotFound from './NotFound';
 import Pagination from '../components/Pagination';
 import useFetchPizzas from '../hooks/useFetchPizzas';
-import { setCurrentPage } from '../redux/slices/filterSlice'; // Импорт экшена
+import { setCurrentPage } from '../redux/slices/filterSlice';
 
 const Home = ({ searchValue }) => {
   const { activeSort, activeCategory, currentPage } = useSelector((state) => state.filters);
@@ -16,7 +16,7 @@ const Home = ({ searchValue }) => {
 
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Используем хук для получения данных пицц
+  // Fetch pizza data using the custom hook
   const { items, isLoaded, pageCount } = useFetchPizzas(
     activeCategory,
     activeSort,
@@ -30,21 +30,7 @@ const Home = ({ searchValue }) => {
   };
 
   const handlePageChange = (selectedPage) => {
-    dispatch(setCurrentPage(selectedPage)); // Диспатчем новое значение страницы в Redux
-  };
-
-  const renderPizzas = () => {
-    if (!isLoaded) {
-      return Array(6)
-        .fill(0)
-        .map((_, index) => <Skeleton key={index} />);
-    }
-
-    if (items.length === 0) {
-      return <NotFound />;
-    }
-
-    return items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+    dispatch(setCurrentPage(selectedPage)); // Dispatch the new page value to Redux
   };
 
   return (
@@ -54,8 +40,18 @@ const Home = ({ searchValue }) => {
         <Sort order={sortOrder} onClickOrder={handleOrderChange} />
       </div>
       <h2 className="content__title">All pizzas</h2>
-      <div className="content__items">{renderPizzas()}</div>
-      <Pagination pageCount={pageCount} /> {/* handlePageChange больше не нужен */}
+      <div className="content__items">
+        {!isLoaded ? (
+          Array(6)
+            .fill(0)
+            .map((_, index) => <Skeleton key={index} />)
+        ) : items.length > 0 ? (
+          items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
+        ) : (
+          <NotFound />
+        )}
+      </div>
+      <Pagination pageCount={pageCount} onPageChange={handlePageChange} />
     </div>
   );
 };

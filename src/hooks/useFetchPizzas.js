@@ -22,11 +22,19 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
 
     try {
       const params = getFilterParams();
+
+      // Получаем данные для отображаемых элементов
       const [{ data }, { data: totalItems }] = await Promise.all([
         axios.get(API_URL, { params }),
-        axios.get(API_URL),
+        axios.get(API_URL, {
+          params: {
+            category: activeCategory !== 0 ? activeCategory : undefined,
+            search: searchValue,
+          },
+        }),
       ]);
 
+      // Устанавливаем количество страниц на основе отфильтрованных данных
       setItems(data);
       setPageCount(Math.ceil(totalItems.length / 4));
     } catch (error) {
