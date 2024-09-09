@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Categories from '../components/Categories';
@@ -7,23 +7,20 @@ import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import NotFound from './NotFound';
 import Pagination from '../components/Pagination';
-import useFetchPizzas from '../hooks/useFetchPizzas';
 import { setCurrentPage } from '../redux/slices/filterSlice';
+import { fetchPizzas } from '../redux/slices/pizzaSlice';
 
 const Home = ({ searchValue }) => {
   const { activeSort, activeCategory, currentPage } = useSelector((state) => state.filters);
+  const { items, isLoaded, pageCount } = useSelector((state) => state.pizza);
   const dispatch = useDispatch();
 
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Fetch pizza data using the custom hook
-  const { items, isLoaded, pageCount } = useFetchPizzas(
-    activeCategory,
-    activeSort,
-    sortOrder,
-    searchValue,
-    currentPage,
-  );
+  // Загрузка данных о пиццах через Redux
+  useEffect(() => {
+    dispatch(fetchPizzas({ activeCategory, activeSort, sortOrder, searchValue, currentPage }));
+  }, [activeCategory, activeSort, sortOrder, searchValue, currentPage, dispatch]);
 
   const handleOrderChange = (order) => {
     setSortOrder(order);
