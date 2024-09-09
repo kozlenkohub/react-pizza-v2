@@ -19,6 +19,7 @@ const Search = () => {
 
   const onChangeInput = (e) => {
     const inputValue = e.target.value;
+
     setValue(inputValue);
     debouncedSearch(inputValue);
   };

@@ -17,8 +17,14 @@ const Home = ({ searchValue }) => {
 
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Загрузка данных о пиццах через Redux
   useEffect(() => {
+    console.log('Fetching pizzas with:', {
+      activeCategory,
+      activeSort,
+      sortOrder,
+      searchValue,
+      currentPage,
+    });
     dispatch(fetchPizzas({ activeCategory, activeSort, sortOrder, searchValue, currentPage }));
   }, [activeCategory, activeSort, sortOrder, searchValue, currentPage, dispatch]);
 
@@ -27,7 +33,7 @@ const Home = ({ searchValue }) => {
   };
 
   const handlePageChange = (selectedPage) => {
-    dispatch(setCurrentPage(selectedPage)); // Dispatch the new page value to Redux
+    dispatch(setCurrentPage(selectedPage));
   };
 
   return (
@@ -42,10 +48,10 @@ const Home = ({ searchValue }) => {
           Array(6)
             .fill(0)
             .map((_, index) => <Skeleton key={index} />)
-        ) : items.length > 0 ? (
-          items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
-        ) : (
+        ) : items.length === 0 ? (
           <NotFound />
+        ) : (
+          items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
         )}
       </div>
       <Pagination pageCount={pageCount} onPageChange={handlePageChange} />

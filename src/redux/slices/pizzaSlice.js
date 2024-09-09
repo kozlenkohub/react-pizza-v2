@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Асинхронный thunk для получения данных пицц
 export const fetchPizzas = createAsyncThunk(
   'pizza/fetchPizzas',
   async (params, { rejectWithValue }) => {
@@ -22,7 +21,7 @@ export const fetchPizzas = createAsyncThunk(
 
       return data;
     } catch (error) {
-      return rejectWithValue('Не удалось загрузить пиццы');
+      return rejectWithValue('Something went wrong while fetching pizzas');
     }
   },
 );
@@ -35,19 +34,18 @@ const pizzaSlice = createSlice({
     error: null,
     pageCount: 1,
   },
-  reducers: {
-    // Здесь можно добавить синхронные редьюсеры, если нужно
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPizzas.pending, (state) => {
         state.isLoaded = false;
         state.error = null;
+        state.items = []; // Clear items when fetching starts
       })
       .addCase(fetchPizzas.fulfilled, (state, action) => {
         state.items = action.payload;
         state.isLoaded = true;
-        state.pageCount = Math.ceil(action.payload.length / 4); // Примерная обработка количества страниц
+        state.pageCount = action.payload.pageCount || 3;
       })
       .addCase(fetchPizzas.rejected, (state, action) => {
         state.isLoaded = true;
