@@ -13,6 +13,8 @@ const Sort = ({ order, onClickOrder }) => {
   const activeSort = useSelector((state) => state.filters.activeSort);
   const [visiblePopup, setVisiblePopup] = React.useState(false);
 
+  const sortRef = React.useRef(); // Corrected typo from softRef to sortRef
+
   const onClickSorted = (obj) => {
     dispatch(setActiveSort(obj));
     setVisiblePopup(false);
@@ -20,11 +22,23 @@ const Sort = ({ order, onClickOrder }) => {
 
   const toggleOrder = () => {
     const newOrder = order === 'asc' ? 'desc' : 'asc';
-    onClickOrder(newOrder); // Вызов функции из пропсов для изменения порядка
+    onClickOrder(newOrder); // Function from props to change the order
   };
 
+  const handleClickOutside = (e) => {
+    if (sortRef.current && !sortRef.current.contains(e.target)) {
+      setVisiblePopup(false);
+    }
+  };
+
+  React.useEffect(() => {
+    document.body.addEventListener('click', handleClickOutside);
+
+    return () => document.body.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
-    <div className="sort">
+    <div className="sort" ref={sortRef}>
       <div className="sort__label">
         <svg
           onClick={toggleOrder}

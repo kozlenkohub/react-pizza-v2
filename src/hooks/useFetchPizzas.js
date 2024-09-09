@@ -14,14 +14,17 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
 
   const API_URL = 'https://665d6310e88051d604065b54.mockapi.io/items';
 
-  const getFilterParams = () => ({
-    category: activeCategory !== 0 ? activeCategory : undefined,
-    sortBy: activeSort.sort,
-    order: sortOrder,
-    search: searchValue || undefined,
-    page: currentPage + 1,
-    limit: 4,
-  });
+  const getFilterParams = useCallback(
+    () => ({
+      category: activeCategory !== 0 ? activeCategory : undefined,
+      sortBy: activeSort.sort,
+      order: sortOrder,
+      search: searchValue || undefined,
+      page: currentPage + 1,
+      limit: 4,
+    }),
+    [activeCategory, activeSort, sortOrder, searchValue, currentPage],
+  );
 
   const updateURLParams = useCallback(() => {
     if (isFirstRender.current) {
@@ -30,7 +33,7 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
     const params = getFilterParams();
     const queryString = qs.stringify(params, { skipNulls: true });
     window.history.pushState(null, '', `?${queryString}`);
-  }, [activeCategory, activeSort, sortOrder, searchValue, currentPage]);
+  }, [getFilterParams]);
 
   const fetchPizzas = useCallback(async () => {
     setIsLoaded(false);
@@ -50,7 +53,7 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
     } finally {
       setIsLoaded(true);
     }
-  }, [activeCategory, activeSort, sortOrder, searchValue, currentPage]);
+  }, [getFilterParams]);
 
   const syncFiltersWithURL = useCallback(() => {
     const params = qs.parse(window.location.search, { ignoreQueryPrefix: true });
@@ -71,7 +74,7 @@ const useFetchPizzas = (activeCategory, activeSort, sortOrder, searchValue, curr
 
   useEffect(() => {
     syncFiltersWithURL();
-  }, []);
+  }, [syncFiltersWithURL]);
 
   useEffect(() => {
     if (!isFirstRender.current) {
